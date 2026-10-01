@@ -7,6 +7,8 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.score = 0
+
     // TITLE
     this.add
       .text(400, 50, 'Heart Collector ❤️', {
@@ -15,6 +17,17 @@ class GameScene extends Phaser.Scene {
         fontFamily: 'Arial'
       })
       .setOrigin(0.5)
+
+    // SCORE
+    this.scoreText = this.add.text(
+      20,
+      20,
+      'Hearts: 0 / 5',
+      {
+        fontSize: '20px',
+        color: '#ffffff'
+      }
+    )
 
     // GROUND
     this.ground = this.add.rectangle(
@@ -29,7 +42,7 @@ class GameScene extends Phaser.Scene {
 
     // PLAYER
     this.player = this.add.rectangle(
-      150,
+      100,
       450,
       45,
       60,
@@ -40,10 +53,53 @@ class GameScene extends Phaser.Scene {
 
     this.player.body.setCollideWorldBounds(true)
 
-    // PLAYER + GROUND COLLISION
+    // PLAYER + GROUND
     this.physics.add.collider(
       this.player,
       this.ground
+    )
+
+    // HEART GROUP
+    this.hearts = this.physics.add.group({
+      allowGravity: false,
+      immovable: true
+    })
+
+    const heartPositions = [
+      { x: 200, y: 480 },
+      { x: 320, y: 480 },
+      { x: 440, y: 480 },
+      { x: 560, y: 480 },
+      { x: 680, y: 480 }
+    ]
+
+    heartPositions.forEach((position) => {
+      const heart = this.add.text(
+        position.x,
+        position.y,
+        '❤️',
+        {
+          fontSize: '35px'
+        }
+      )
+
+      heart.setOrigin(0.5)
+
+      this.physics.add.existing(heart)
+
+      heart.body.setAllowGravity(false)
+      heart.body.setImmovable(true)
+
+      this.hearts.add(heart)
+    })
+
+    // PLAYER COLLECT HEART
+    this.physics.add.overlap(
+      this.player,
+      this.hearts,
+      this.collectHeart,
+      null,
+      this
     )
 
     // KEYBOARD
@@ -52,14 +108,58 @@ class GameScene extends Phaser.Scene {
 
     // INSTRUCTION
     this.add.text(
-      20,
+      530,
       20,
       '← → Move   SPACE / ↑ Jump',
       {
-        fontSize: '18px',
+        fontSize: '16px',
         color: '#ffffff'
       }
     )
+  }
+
+  collectHeart(player, heart) {
+    heart.destroy()
+
+    this.score++
+
+    this.scoreText.setText(
+      `Hearts: ${this.score} / 5`
+    )
+
+    if (this.score === 5) {
+      this.showWinMessage()
+    }
+  }
+
+  showWinMessage() {
+    this.player.body.setVelocity(0)
+
+    this.add
+      .text(
+        400,
+        250,
+        'YOU WIN! ❤️',
+        {
+          fontSize: '52px',
+          color: '#ff8fab',
+          fontFamily: 'Arial',
+          fontStyle: 'bold'
+        }
+      )
+      .setOrigin(0.5)
+
+    this.add
+      .text(
+        400,
+        310,
+        'All hearts collected!',
+        {
+          fontSize: '24px',
+          color: '#ffffff'
+        }
+      )
+      .setOrigin(0.5)
   }
 
   update() {
