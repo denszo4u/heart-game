@@ -11,15 +11,11 @@ class GameScene extends Phaser.Scene {
     this.totalHearts = 7
     this.hasWon = false
 
-    // =========================
-    // CREATE PIXEL CHARACTER
-    // =========================
+    // CREATE PLAYER TEXTURES + ANIMATIONS
     this.createPlayerTextures()
     this.createPlayerAnimations()
 
-    // =========================
     // TITLE
-    // =========================
     this.add
       .text(400, 35, 'Heart Collector ❤️', {
         fontSize: '30px',
@@ -28,9 +24,7 @@ class GameScene extends Phaser.Scene {
       })
       .setOrigin(0.5)
 
-    // =========================
     // SCORE
-    // =========================
     this.scoreText = this.add.text(
       20,
       20,
@@ -41,9 +35,7 @@ class GameScene extends Phaser.Scene {
       }
     )
 
-    // =========================
     // CONTROLS
-    // =========================
     this.add.text(
       540,
       20,
@@ -54,64 +46,17 @@ class GameScene extends Phaser.Scene {
       }
     )
 
-    // =========================
     // PLATFORMS
-    // =========================
     this.platforms = this.physics.add.staticGroup()
 
-    // Ground
-    this.createPlatform(
-      400,
-      575,
-      800,
-      50,
-      0x475569
-    )
+    this.createPlatform(400, 575, 800, 50, 0x475569)
+    this.createPlatform(180, 460, 180, 25, 0x64748b)
+    this.createPlatform(430, 380, 180, 25, 0x64748b)
+    this.createPlatform(680, 300, 180, 25, 0x64748b)
+    this.createPlatform(400, 210, 170, 25, 0x64748b)
+    this.createPlatform(140, 160, 160, 25, 0x64748b)
 
-    // Floating platforms
-    this.createPlatform(
-      180,
-      460,
-      180,
-      25,
-      0x64748b
-    )
-
-    this.createPlatform(
-      430,
-      380,
-      180,
-      25,
-      0x64748b
-    )
-
-    this.createPlatform(
-      680,
-      300,
-      180,
-      25,
-      0x64748b
-    )
-
-    this.createPlatform(
-      400,
-      210,
-      170,
-      25,
-      0x64748b
-    )
-
-    this.createPlatform(
-      140,
-      160,
-      160,
-      25,
-      0x64748b
-    )
-
-    // =========================
     // PLAYER
-    // =========================
     this.player = this.physics.add.sprite(
       80,
       500,
@@ -119,22 +64,16 @@ class GameScene extends Phaser.Scene {
     )
 
     this.player.setCollideWorldBounds(true)
-
-    // Slightly smaller collision body
-    this.player.body.setSize(24, 46)
-    this.player.body.setOffset(8, 8)
-
+    this.player.body.setSize(24, 50)
+    this.player.body.setOffset(8, 6)
     this.player.play('idle')
 
-    // Player collision
     this.physics.add.collider(
       this.player,
       this.platforms
     )
 
-    // =========================
     // HEARTS
-    // =========================
     this.hearts = this.physics.add.group({
       allowGravity: false,
       immovable: true
@@ -170,9 +109,6 @@ class GameScene extends Phaser.Scene {
       this.hearts.add(heart)
     })
 
-    // =========================
-    // COLLECT HEART
-    // =========================
     this.physics.add.overlap(
       this.player,
       this.hearts,
@@ -181,138 +117,156 @@ class GameScene extends Phaser.Scene {
       this
     )
 
-    // =========================
     // KEYBOARD
-    // =========================
     this.cursors =
       this.input.keyboard.createCursorKeys()
   }
 
-  // =========================
-  // PIXEL CHARACTER TEXTURES
-  // =========================
-
   createPlayerTextures() {
     this.drawPlayer('player_idle1', 'idle1')
     this.drawPlayer('player_idle2', 'idle2')
-
     this.drawPlayer('player_run1', 'run1')
     this.drawPlayer('player_run2', 'run2')
-
     this.drawPlayer('player_jump', 'jump')
   }
 
   drawPlayer(key, pose) {
-    const graphics = this.make.graphics({
-      x: 0,
-      y: 0,
-      add: false
-    })
+  const graphics = this.make.graphics({
+    x: 0,
+    y: 0,
+    add: false
+  })
 
-    // Hair
-    graphics.fillStyle(0x3b2f2f)
-    graphics.fillRect(8, 4, 24, 8)
-    graphics.fillRect(4, 8, 32, 8)
+  // COLORS
+  const hijabColor = 0x111111
+  const outfitColor = 0x1d4ed8 // biru
+  const skinColor = 0xd8a07a
+  const shoeColor = 0x222222
+  const eyeColor = 0x111111
+  const faceShade = 0xc98f6c
+  const blushColor = 0xf29bb2
+  const lipColor = 0xe56b8a
 
-    // Face
-    graphics.fillStyle(0xffd6b0)
-    graphics.fillRect(8, 16, 24, 16)
+  // HIJAB TOP
+  graphics.fillStyle(hijabColor)
+  graphics.fillRect(10, 4, 20, 8)
+  graphics.fillRect(6, 8, 28, 8)
 
-    // Eyes
-    graphics.fillStyle(0x222222)
-    graphics.fillRect(12, 20, 4, 4)
-    graphics.fillRect(24, 20, 4, 4)
+  // HIJAB SIDES
+  graphics.fillRect(4, 16, 6, 16)
+  graphics.fillRect(30, 16, 6, 16)
 
-    // Shirt
-    graphics.fillStyle(0xff8fab)
-    graphics.fillRect(8, 32, 24, 16)
+  // FACE
+  graphics.fillStyle(skinColor)
+  graphics.fillRect(12, 14, 16, 16)
 
-    // Arms
-    graphics.fillStyle(0xffd6b0)
+  // FACE SHADE / LOWER FACE
+  graphics.fillStyle(faceShade)
+  graphics.fillRect(12, 26, 16, 4)
 
-    if (pose === 'run1') {
-      graphics.fillRect(4, 32, 4, 16)
-      graphics.fillRect(32, 36, 4, 12)
-    } else if (pose === 'run2') {
-      graphics.fillRect(4, 36, 4, 12)
-      graphics.fillRect(32, 32, 4, 16)
-    } else if (pose === 'jump') {
-      graphics.fillRect(4, 28, 4, 16)
-      graphics.fillRect(32, 28, 4, 16)
-    } else {
-      graphics.fillRect(4, 34, 4, 14)
-      graphics.fillRect(32, 34, 4, 14)
-    }
+  // EYEBROWS
+  graphics.fillStyle(0x2b1d1d)
+  graphics.fillRect(14, 17, 3, 1)
+  graphics.fillRect(23, 17, 3, 1)
 
-    // Pants
-    graphics.fillStyle(0x6366f1)
-    graphics.fillRect(8, 48, 24, 8)
+  // EYES
+  graphics.fillStyle(eyeColor)
+  graphics.fillRect(15, 20, 2, 2)
+  graphics.fillRect(23, 20, 2, 2)
 
-    // Legs
-    graphics.fillStyle(0x222222)
+  // EYELASHES
+  graphics.fillRect(14, 19, 1, 1)
+  graphics.fillRect(13, 20, 1, 1)
 
-    if (pose === 'run1') {
-      graphics.fillRect(8, 56, 8, 4)
-      graphics.fillRect(24, 52, 8, 8)
-    } else if (pose === 'run2') {
-      graphics.fillRect(8, 52, 8, 8)
-      graphics.fillRect(24, 56, 8, 4)
-    } else if (pose === 'jump') {
-      graphics.fillRect(8, 52, 8, 4)
-      graphics.fillRect(24, 52, 8, 4)
-    } else {
-      graphics.fillRect(8, 52, 8, 8)
-      graphics.fillRect(24, 52, 8, 8)
-    }
+  graphics.fillRect(25, 19, 1, 1)
+  graphics.fillRect(26, 20, 1, 1)
 
-    // Idle breathing effect
-    if (pose === 'idle2') {
-      graphics.fillStyle(0xffffff)
-      graphics.fillRect(18, 38, 4, 4)
-    }
+  // BLUSH
+  graphics.fillStyle(blushColor)
+  graphics.fillRect(12, 23, 2, 2)
+  graphics.fillRect(26, 23, 2, 2)
 
-    graphics.generateTexture(
-      key,
-      40,
-      64
-    )
+  // LIPS
+  graphics.fillStyle(lipColor)
+  graphics.fillRect(18, 26, 4, 1)
 
-    graphics.destroy()
+  // HIJAB CHEST / SHOULDER WRAP
+  graphics.fillStyle(hijabColor)
+  graphics.fillRect(8, 30, 24, 8)
+
+  // BODY / DRESS
+  graphics.fillStyle(outfitColor)
+  graphics.fillRect(10, 38, 20, 16)
+
+  // ARMS
+  graphics.fillStyle(skinColor)
+
+  if (pose === 'run1') {
+    graphics.fillRect(6, 40, 4, 12)
+    graphics.fillRect(30, 44, 4, 10)
+  } else if (pose === 'run2') {
+    graphics.fillRect(6, 44, 4, 10)
+    graphics.fillRect(30, 40, 4, 12)
+  } else if (pose === 'jump') {
+    graphics.fillRect(6, 36, 4, 12)
+    graphics.fillRect(30, 36, 4, 12)
+  } else {
+    graphics.fillRect(6, 42, 4, 10)
+    graphics.fillRect(30, 42, 4, 10)
   }
 
-  // =========================
-  // PLAYER ANIMATIONS
-  // =========================
+  // LOWER DRESS
+  graphics.fillStyle(outfitColor)
+  graphics.fillRect(8, 54, 24, 8)
+
+  // LEGS / SHOES
+  graphics.fillStyle(shoeColor)
+
+  if (pose === 'run1') {
+    graphics.fillRect(10, 62, 6, 4)
+    graphics.fillRect(22, 60, 8, 6)
+  } else if (pose === 'run2') {
+    graphics.fillRect(10, 60, 8, 6)
+    graphics.fillRect(24, 62, 6, 4)
+  } else if (pose === 'jump') {
+    graphics.fillRect(10, 60, 6, 4)
+    graphics.fillRect(24, 60, 6, 4)
+  } else {
+    graphics.fillRect(10, 60, 6, 6)
+    graphics.fillRect(24, 60, 6, 6)
+  }
+
+  // IDLE DETAIL
+  if (pose === 'idle2') {
+    graphics.fillStyle(0x60a5fa)
+    graphics.fillRect(16, 42, 8, 2)
+  }
+
+  graphics.generateTexture(key, 40, 68)
+  graphics.destroy()
+}
 
   createPlayerAnimations() {
     this.anims.create({
       key: 'idle',
-
       frames: [
         { key: 'player_idle1' },
         { key: 'player_idle2' }
       ],
-
       frameRate: 2,
       repeat: -1
     })
 
     this.anims.create({
       key: 'run',
-
       frames: [
         { key: 'player_run1' },
         { key: 'player_run2' }
       ],
-
       frameRate: 8,
       repeat: -1
     })
   }
-
-  // =========================
-  // PLATFORM
-  // =========================
 
   createPlatform(x, y, width, height, color) {
     const platform = this.add.rectangle(
@@ -325,10 +279,6 @@ class GameScene extends Phaser.Scene {
 
     this.platforms.add(platform)
   }
-
-  // =========================
-  // HEART COLLECTION
-  // =========================
 
   collectHeart(player, heart) {
     heart.destroy()
@@ -344,15 +294,10 @@ class GameScene extends Phaser.Scene {
     }
   }
 
-  // =========================
-  // WIN SCREEN
-  // =========================
-
   showWinMessage() {
     this.hasWon = true
 
     this.player.body.setVelocity(0)
-
     this.player.play('idle')
 
     this.add.rectangle(
@@ -391,10 +336,6 @@ class GameScene extends Phaser.Scene {
       .setOrigin(0.5)
   }
 
-  // =========================
-  // GAME LOOP
-  // =========================
-
   update() {
     if (this.hasWon) {
       this.player.body.setVelocityX(0)
@@ -403,35 +344,23 @@ class GameScene extends Phaser.Scene {
 
     const speed = 230
     const jumpPower = -520
-
-    const onGround =
-      this.player.body.blocked.down
-
-    // =========================
-    // MOVEMENT
-    // =========================
+    const onGround = this.player.body.blocked.down
 
     if (this.cursors.left.isDown) {
       this.player.body.setVelocityX(-speed)
-
       this.player.setFlipX(true)
 
       if (onGround) {
         this.player.play('run', true)
       }
-    }
-
-    else if (this.cursors.right.isDown) {
+    } else if (this.cursors.right.isDown) {
       this.player.body.setVelocityX(speed)
-
       this.player.setFlipX(false)
 
       if (onGround) {
         this.player.play('run', true)
       }
-    }
-
-    else {
+    } else {
       this.player.body.setVelocityX(0)
 
       if (onGround) {
@@ -439,63 +368,34 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    // =========================
-    // JUMP
-    // =========================
-
     const jumpPressed =
-      Phaser.Input.Keyboard.JustDown(
-        this.cursors.space
-      ) ||
-      Phaser.Input.Keyboard.JustDown(
-        this.cursors.up
-      )
+      Phaser.Input.Keyboard.JustDown(this.cursors.space) ||
+      Phaser.Input.Keyboard.JustDown(this.cursors.up)
 
-    if (
-      jumpPressed &&
-      onGround
-    ) {
-      this.player.body.setVelocityY(
-        jumpPower
-      )
+    if (jumpPressed && onGround) {
+      this.player.body.setVelocityY(jumpPower)
     }
-
-    // =========================
-    // JUMP ANIMATION
-    // =========================
 
     if (!onGround) {
       this.player.anims.stop()
-
-      this.player.setTexture(
-        'player_jump'
-      )
+      this.player.setTexture('player_jump')
     }
   }
 }
 
-// =========================
-// GAME CONFIG
-// =========================
-
 const config = {
   type: Phaser.AUTO,
-
   width: 800,
   height: 600,
-
   backgroundColor: '#1e1e2f',
-
   pixelArt: true,
 
   physics: {
     default: 'arcade',
-
     arcade: {
       gravity: {
         y: 900
       },
-
       debug: false
     }
   },
