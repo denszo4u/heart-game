@@ -8,11 +8,13 @@ class GameScene extends Phaser.Scene {
 
   create() {
     this.score = 0
+    this.totalHearts = 7
+    this.hasWon = false
 
     // TITLE
     this.add
-      .text(400, 50, 'Heart Collector ❤️', {
-        fontSize: '32px',
+      .text(400, 35, 'Heart Collector ❤️', {
+        fontSize: '30px',
         color: '#ffffff',
         fontFamily: 'Arial'
       })
@@ -22,30 +24,83 @@ class GameScene extends Phaser.Scene {
     this.scoreText = this.add.text(
       20,
       20,
-      'Hearts: 0 / 5',
+      `Hearts: 0 / ${this.totalHearts}`,
       {
-        fontSize: '20px',
+        fontSize: '18px',
         color: '#ffffff'
       }
     )
 
-    // GROUND
-    this.ground = this.add.rectangle(
-      400,
-      560,
-      800,
-      80,
-      0x4b5563
+    // INSTRUCTION
+    this.add.text(
+      540,
+      20,
+      '← → Move   ↑ / SPACE Jump',
+      {
+        fontSize: '14px',
+        color: '#ffffff'
+      }
     )
 
-    this.physics.add.existing(this.ground, true)
+    // PLATFORM GROUP
+    this.platforms = this.physics.add.staticGroup()
+
+    // GROUND
+    this.createPlatform(
+      400,
+      575,
+      800,
+      50,
+      0x475569
+    )
+
+    // FLOATING PLATFORMS
+    this.createPlatform(
+      180,
+      460,
+      180,
+      25,
+      0x64748b
+    )
+
+    this.createPlatform(
+      430,
+      380,
+      180,
+      25,
+      0x64748b
+    )
+
+    this.createPlatform(
+      680,
+      300,
+      180,
+      25,
+      0x64748b
+    )
+
+    this.createPlatform(
+      400,
+      210,
+      170,
+      25,
+      0x64748b
+    )
+
+    this.createPlatform(
+      140,
+      160,
+      160,
+      25,
+      0x64748b
+    )
 
     // PLAYER
     this.player = this.add.rectangle(
-      100,
-      450,
-      45,
-      60,
+      80,
+      500,
+      42,
+      58,
       0xff8fab
     )
 
@@ -53,10 +108,10 @@ class GameScene extends Phaser.Scene {
 
     this.player.body.setCollideWorldBounds(true)
 
-    // PLAYER + GROUND
+    // PLAYER COLLISION WITH PLATFORMS
     this.physics.add.collider(
       this.player,
-      this.ground
+      this.platforms
     )
 
     // HEART GROUP
@@ -65,12 +120,15 @@ class GameScene extends Phaser.Scene {
       immovable: true
     })
 
+    // HEART POSITIONS
     const heartPositions = [
-      { x: 200, y: 480 },
-      { x: 320, y: 480 },
-      { x: 440, y: 480 },
-      { x: 560, y: 480 },
-      { x: 680, y: 480 }
+      { x: 240, y: 525 },
+      { x: 180, y: 420 },
+      { x: 430, y: 340 },
+      { x: 680, y: 260 },
+      { x: 400, y: 170 },
+      { x: 140, y: 120 },
+      { x: 740, y: 525 }
     ]
 
     heartPositions.forEach((position) => {
@@ -79,7 +137,7 @@ class GameScene extends Phaser.Scene {
         position.y,
         '❤️',
         {
-          fontSize: '35px'
+          fontSize: '32px'
         }
       )
 
@@ -93,7 +151,7 @@ class GameScene extends Phaser.Scene {
       this.hearts.add(heart)
     })
 
-    // PLAYER COLLECT HEART
+    // COLLECT HEART
     this.physics.add.overlap(
       this.player,
       this.hearts,
@@ -105,17 +163,18 @@ class GameScene extends Phaser.Scene {
     // KEYBOARD
     this.cursors =
       this.input.keyboard.createCursorKeys()
+  }
 
-    // INSTRUCTION
-    this.add.text(
-      530,
-      20,
-      '← → Move   SPACE / ↑ Jump',
-      {
-        fontSize: '16px',
-        color: '#ffffff'
-      }
+  createPlatform(x, y, width, height, color) {
+    const platform = this.add.rectangle(
+      x,
+      y,
+      width,
+      height,
+      color
     )
+
+    this.platforms.add(platform)
   }
 
   collectHeart(player, heart) {
@@ -124,24 +183,35 @@ class GameScene extends Phaser.Scene {
     this.score++
 
     this.scoreText.setText(
-      `Hearts: ${this.score} / 5`
+      `Hearts: ${this.score} / ${this.totalHearts}`
     )
 
-    if (this.score === 5) {
+    if (this.score === this.totalHearts) {
       this.showWinMessage()
     }
   }
 
   showWinMessage() {
+    this.hasWon = true
+
     this.player.body.setVelocity(0)
+
+    this.add.rectangle(
+      400,
+      300,
+      500,
+      190,
+      0x111827,
+      0.9
+    )
 
     this.add
       .text(
         400,
-        250,
+        270,
         'YOU WIN! ❤️',
         {
-          fontSize: '52px',
+          fontSize: '48px',
           color: '#ff8fab',
           fontFamily: 'Arial',
           fontStyle: 'bold'
@@ -152,10 +222,10 @@ class GameScene extends Phaser.Scene {
     this.add
       .text(
         400,
-        310,
+        325,
         'All hearts collected!',
         {
-          fontSize: '24px',
+          fontSize: '22px',
           color: '#ffffff'
         }
       )
@@ -163,7 +233,13 @@ class GameScene extends Phaser.Scene {
   }
 
   update() {
-    const speed = 220
+    if (this.hasWon) {
+      this.player.body.setVelocityX(0)
+      return
+    }
+
+    const speed = 230
+    const jumpPower = -520
 
     // LEFT
     if (this.cursors.left.isDown) {
@@ -182,11 +258,16 @@ class GameScene extends Phaser.Scene {
 
     // JUMP
     if (
-      (this.cursors.space.isDown ||
-        this.cursors.up.isDown) &&
-      this.player.body.blocked.down
+      Phaser.Input.Keyboard.JustDown(
+        this.cursors.space
+      ) ||
+      Phaser.Input.Keyboard.JustDown(
+        this.cursors.up
+      )
     ) {
-      this.player.body.setVelocityY(-500)
+      if (this.player.body.blocked.down) {
+        this.player.body.setVelocityY(jumpPower)
+      }
     }
   }
 }
